@@ -27,35 +27,39 @@
      
     <!-- Modal for Adding Tasks -->
     <div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="formModalLabel">Add New Task</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <form id="add-task-form">
-                <div class="mb-3">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="formModalLabel">Add Task</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="add-task-form">
+              <div class="form-row">
+                <!-- Task Title -->
+                <div class="form-group">
                   <label for="task-title" class="form-label">Task Title</label>
                   <input type="text" class="form-control" id="task-title" placeholder="Enter task title" required />
                 </div>
-                <div class="mb-3">
-                  <label for="task-desc" class="form-label">Task Description</label>
-                  <textarea class="form-control" id="task-desc" rows="3" placeholder="Enter task description"></textarea>
-                </div>
-                <div class="mb-3">
+                <!-- Due Date -->
+                <div class="form-group">
                   <label for="task-due-date" class="form-label">Due Date</label>
                   <input type="text" class="form-control" id="task-due-date" placeholder="Pick a due date" required />
                 </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary">Add Task</button>
-                </div>
-              </form>
-            </div>
+              </div>
+              <!-- Task Description -->
+              <div class="mb-3">
+                <label for="task-desc" class="form-label">Task Description</label>
+                <textarea class="form-control" id="task-desc" rows="3" placeholder="Enter task description"></textarea>
+              </div>
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Add Task</button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
+    </div>
       
     <!-- The Kanban board swim lanes -->
     <div class="row swim-lanes text-center justify-content-between">

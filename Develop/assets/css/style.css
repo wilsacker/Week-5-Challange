@@ -1,3 +1,4 @@
+/* Main */
 body {
   font-family: 'Open Sans', sans-serif;
   font-size: 16px;
@@ -13,4 +14,38 @@ body {
 
 .task-card:hover {
   cursor: grab;
+}
+
+
+/* Modal */
+
+/* Ensure that the modal content has a max-width for readability */
+.modal-dialog {
+  display: flex;
+  max-width: 450px;
+  margin: 30px auto;
+}
+
+.form-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.form-group {
+  width: 48%; /* Take half the available width with some space between */
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: center;
+}
+
+.modal-footer > button {
+  background-color: #198654;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
 }
