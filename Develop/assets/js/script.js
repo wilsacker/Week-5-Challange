@@ -1,10 +1,17 @@
+const dayjs = require('dayjs')
+//import dayjs from 'dayjs' // ES 2015
+
 // Retrieve tasks and nextId from localStorage
 let taskList = JSON.parse(localStorage.getItem("tasks"));
 let nextId = JSON.parse(localStorage.getItem("nextId"));
 
 // Todo: create a function to generate a unique task id
 function generateTaskId() {
-  }
+    let taskId = nextId || 1; // Default to 1 if nextID doesn't exist
+    nextId++; // Increment the next ID for the following task
+    localStorage.setItem("nextId", JSON.stringify(nextId)); // Save the new nextId to localStorage
+    return taskId; // Return the generated taskId
+}
 
 // Todo: create a function to create a task card
 function createTaskCard(task) {
@@ -33,5 +40,8 @@ function handleDrop(event, ui) {
 
 // Todo: when the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
 $(document).ready(function () {
-
+  $("#task-due-date").datepicker(); // Initialize datepicker
 });
+
+
+dayjs().format()
