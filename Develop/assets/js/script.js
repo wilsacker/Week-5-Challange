@@ -4,86 +4,72 @@ const taskDescInputEl = $("#task-desc");
 
 // Retrieve tasks and nextId from localStorage
 let taskList = JSON.parse(localStorage.getItem("tasks"));
-let nextId = JSON.parse(localStorage.getItem("nextId"));
+let nextId = JSON.parse(localStorage.getItem("nextId")) || 1;
 
 // Function to generate a unique task id
 function generateTaskId() {
-  let taskId = nextId || 1; // Default to 1 if nextID doesn't exist
-  nextId++; // Increment the next ID for the following task
+  nextId = nextId || 1; // Default to 1 if nextId doesn't exist
+  const taskId = nextId; // Assign current nextId to taskId
+  nextId++; // Increment nextId for the next task
   localStorage.setItem("nextId", JSON.stringify(nextId)); // Save the new nextId to localStorage
-  console.log("nextId Saved");
-  return taskId; // Return the generated taskId
+  console.log("next id saved:", nextId);
+  return taskId; // Return the unique taskId
 }
 
-// Accepts an array of projects, stringifys them, and saves them in localStorage.
+// Accepts an array of projects, stringify's them, and saves them in localStorage.
 function saveTasksToStorage(taskList) {
   localStorage.setItem("tasks", JSON.stringify(taskList)); // Save taskList
   console.log("Saved tasks list:", taskList); // Debugging check
 }
 
-// Function to read tasks from local storage
-function readTasksFromStorage() {
-  // Retrieve projects from localStorage and parse the JSON to an array.
-  // We use `let` here because there is a chance that there are no projects in localStorage (which means the projects variable will be equal to `null`) and we will need it to be initialized to an empty array.
-  let tasks = JSON.parse(localStorage.getItem("tasks"));
-
-  // If no projects were retrieved from localStorage, assign projects to a new empty array to push to later.
-  if (!tasks) {
-    tasks = [];
-  }
-
-  // Return the projects array either empty or with data in it whichever it was determined to be by the logic right above.
-  return tasks;
-}
-
 // Function to handle adding a new task
 function handleAddTask(event) {
-    event.preventDefault();
-  
-    console.log("handle add task function called");
-  
-    // Read user input from the form
-    const taskTitle = taskTitleInputEl.val().trim();
-    const taskDueDate = taskDueDateInputEl.val(); // yyyy-mm-dd format
-    const taskDesc = taskDescInputEl.val(); // don't need to trim select input
-  
-    if (!taskTitle || !taskDueDate) {
-      console.error("All fields must be filled out");
-      return; // Prevent adding task if title or date fields are empty
-    }
-  
-    const newTask = {
-      name: taskTitle,
-      dueDate: taskDueDate,
-      desc: taskDesc,
-      status: "to-do",
-      id: generateTaskId(),
-    };
-  
-    // Retrieve task list from localStorage (or initialize it as an empty array)
-    let taskList = JSON.parse(localStorage.getItem("tasks")) || [];
-  
-    // Add the new task to the list
-    taskList.push(newTask);
-  
-    // Save the updated task list back to localStorage using saveTasksToStorage
-    saveTasksToStorage(taskList); // Use the helper function
-  
-    // Re-render the task list to update the UI
-    renderTaskList();
-  
-    // Close the modal after submission
-    $("#formModal").modal('hide');
+  event.preventDefault();
+
+  console.log("handle add task function called");
+
+  // Read user input from the form
+  const taskTitle = taskTitleInputEl.val().trim();
+  const taskDueDate = taskDueDateInputEl.val(); // yyyy-mm-dd format
+  const taskDesc = taskDescInputEl.val(); // don't need to trim select input
+
+  if (!taskTitle || !taskDueDate) {
+    console.error("All fields must be filled out");
+    return; // Prevent adding task if title or date fields are empty
   }
+
+  const newTask = {
+    title: taskTitle,
+    dueDate: taskDueDate,
+    desc: taskDesc,
+    status: "to-do",
+    id: generateTaskId(),
+  };
+
+  // Retrieve task list from localStorage (or initialize it as an empty array)
+  let taskList = JSON.parse(localStorage.getItem("tasks")) || [];
+
+  // Add the new task to the list
+  taskList.push(newTask);
+
+  // Save the updated task list back to localStorage using saveTasksToStorage
+  saveTasksToStorage(taskList); // Use the helper function
+
+  // Re-render the task list to update the UI
+  renderTaskList();
+
+  // Close the modal after submission
+  $("#formModal").modal("hide");
+}
 
 // Function to create a task card
 function createTaskCard(task) {
   const taskCard = $("<div>")
     .addClass("card project-card draggable my-3")
     .attr("data-task-id", task.id);
-  const cardHeader = $("<div>").addClass("card-header h4").text(task.name);
+  const cardHeader = $("<div>").addClass("card-header h4").text(task.title);
   const cardBody = $("<div>").addClass("card-body");
-  const cardDescription = $("<p>").addClass("card-text").text(task.type);
+  const cardDescription = $("<p>").addClass("card-text").text(task.desc);
   const cardDueDate = $("<p>").addClass("card-text").text(task.dueDate);
   const cardDeleteBtn = $("<button>")
     .addClass("btn btn-danger delete")
@@ -113,45 +99,19 @@ function createTaskCard(task) {
   return taskCard;
 }
 
-// Function to handle deleting a task
-function handleDeleteTask(event) {
-  const taskId = $(this).attr("data-project-id");
-  const taskList = JSON.parse(localStorage.getItem("tasks")) || [];
+// Function to read tasks from local storage
+function readTasksFromStorage() {
+  // Retrieve projects from localStorage and parse the JSON to an array.
+  // We use `let` here because there is a chance that there are no projects in localStorage (which means the projects variable will be equal to `null`) and we will need it to be initialized to an empty array.
+  let tasks = JSON.parse(localStorage.getItem("tasks"));
 
-  // Remove project from the array. There is a method called `filter()` for this that is better suited which we will go over in a later activity. For now, we will use a `forEach()` loop to remove the project.
-  taskList.forEach((task) => {
-    if (task.id === taskId) {
-      task.splice(tasks.indexOf(task), 1);
-    }
-  });
-
-  // We will use our helper function to save the tasks to localStorage
-  saveTasksToStorage(tasks);
-
-  // Here we use our other function to render tasks back to the screen
-  renderTaskList();
-}
-
-// Function to handle dropping a task into a new status lane
-function handleDrop(event, ui) {
-  // Read projects from localStorage
-  const projects = readProjectsFromStorage();
-
-  // Get the project id from the event
-  const taskId = ui.draggable[0].dataset.projectId;
-
-  // Get the id of the lane that the card was dropped into
-  const newStatus = event.target.id;
-
-  for (let task of tasks) {
-    // Find the project card by the `id` and update the project status.
-    if (task.id === taskId) {
-      task.status = newStatus;
-    }
+  // If no projects were retrieved from localStorage, assign projects to a new empty array to push to later.
+  if (!tasks) {
+    tasks = [];
   }
-  // Save the updated tasks array to localStorage (overwritting the previous one) and render the new project data to the screen.
-  localStorage.setItem("tasks", JSON.stringify(taskList));
-  renderTaskList();
+
+  // Return the projects array either empty or with data in it whichever it was determined to be by the logic right above.
+  return tasks;
 }
 
 // Function to render the task list and make cards draggable
@@ -179,31 +139,91 @@ function renderTaskList() {
       doneList.appendChild(taskCard[0]);
     }
   });
+
+  // Re-initialize draggable after rendering task cards
+  makeDraggable();
 }
 
-// Use JQuery UI to make task cards draggable
-$(".draggable").draggable({
-  opacity: 0.7,
-  zIndex: 100,
-  // This is the function that creates the clone of the card that is dragged. This is purely visual and does not affect the data.
-  helper: function (e) {
-    // Check if the target of the drag event is the card itself or a child element.
-    // If it is the card itself, clone it, otherwise find the parent card that is draggable and clone that.
-    const original = $(e.target).hasClass("ui-draggable")
-      ? $(e.target)
-      : $(e.target).closest(".ui-draggable");
-    // Return the clone with the width set to the width of the original card. This is so the clone does not take up the entire width of the lane. This is to also fix a visual bug where the card shrinks as it's dragged to the right.
-    return original.clone().css({
-      width: original.outerWidth(),
-    });
-  },
-});
+// Function to handle deleting a task
+function handleDeleteTask(event) {
+  const taskId = $(this).attr("data-task-id");
+  const taskList = JSON.parse(localStorage.getItem("tasks")) || [];
+
+  // Remove project from the array. There is a method called `filter()` for this that is better suited which we will go over in a later activity. For now, we will use a `forEach()` loop to remove the project.
+  taskList.forEach((task) => {
+    if (task.id === taskId) {
+      task.splice(tasks.indexOf(task), 1);
+    }
+  });
+
+  // We will use our helper function to save the tasks to localStorage
+  saveTasksToStorage(tasks);
+
+  // Here we use our other function to render tasks back to the screen
+  renderTaskList();
+}
+
+// Function to handle dropping a task into a new status lane
+function handleDrop(event, ui) {
+  // Read tasks from localStorage
+  const taskList = JSON.parse(localStorage.getItem("tasks")) || [];
+
+  // Get the project id from the event
+  const taskId = ui.draggable[0].dataset.taskId;
+
+  console.log("Dropped task ID:", taskId);
+
+  // Get the id of the lane that the card was dropped into
+  const newStatus = event.target.id;
+
+  for (let task of taskList) {
+    // Find the project card by the `id` and update the project status.
+    if (task.id === taskId) {
+      task.status = newStatus;
+      break;
+    }
+  }
+
+  // Save the updated tasks array to localStorage (overwriting the previous one) and render the new taskList data to the screen.
+  localStorage.setItem("tasks", JSON.stringify(taskList));
+
+  renderTaskList();
+}
+
+// Make task cards draggable
+function makeDraggable() {
+  $(".draggable").draggable({
+    revert: "invalid", // If dropped outside a lane, the item goes back to its original position
+    helper: "clone", // Creates a visual clone when dragging
+    zIndex: 100, // Ensures the dragged item is above other elements
+    opacity: 0.7, // Transparency while dragging
+    helper: function (e) {
+      // Check if the target of the drag event is the card itself or a child element.
+      // If it is the card itself, clone it, otherwise find the parent card that is draggable and clone that.
+      const original = $(e.target).hasClass("ui-draggable")
+        ? $(e.target)
+        : $(e.target).closest(".ui-draggable");
+      // Return the clone with the width set to the width of the original card. This is so the clone does not take up the entire width of the lane. This is to also fix a visual bug where the card shrinks as it's dragged to the right.
+      return original.clone().css({
+        width: original.outerWidth(),
+      });
+    },
+  });
+}
 
 // Todo: when the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
 $(document).ready(function () {
   renderTaskList();
-  $("#task-due-date").datepicker(); // Initialize datepicker
-  $("#add-task-form").on("submit", handleAddTask); // Attach the submit event handler
-});
 
-dayjs().format();
+  // Initialize datepicker
+  $("#task-due-date").datepicker();
+
+  // Attach the submit event handler
+  $("#add-task-form").on("submit", handleAddTask);
+
+  // Make lanes droppable
+  $(".lane").droppable({
+    accept: ".draggable",
+    drop: handleDrop,
+  });
+});
