@@ -36,6 +36,46 @@ function readTasksFromStorage() {
   return tasks;
 }
 
+// Function to handle adding a new task
+function handleAddTask(event) {
+    event.preventDefault();
+  
+    console.log("handle add task function called");
+  
+    // Read user input from the form
+    const taskTitle = taskTitleInputEl.val().trim();
+    const taskDueDate = taskDueDateInputEl.val(); // yyyy-mm-dd format
+    const taskDesc = taskDescInputEl.val(); // don't need to trim select input
+  
+    if (!taskTitle || !taskDueDate) {
+      console.error("All fields must be filled out");
+      return; // Prevent adding task if title or date fields are empty
+    }
+  
+    const newTask = {
+      name: taskTitle,
+      dueDate: taskDueDate,
+      desc: taskDesc,
+      status: "to-do",
+      id: generateTaskId(),
+    };
+  
+    // Retrieve task list from localStorage (or initialize it as an empty array)
+    let taskList = JSON.parse(localStorage.getItem("tasks")) || [];
+  
+    // Add the new task to the list
+    taskList.push(newTask);
+  
+    // Save the updated task list back to localStorage using saveTasksToStorage
+    saveTasksToStorage(taskList); // Use the helper function
+  
+    // Re-render the task list to update the UI
+    renderTaskList();
+  
+    // Close the modal after submission
+    $("#formModal").modal('hide');
+  }
+
 // Function to create a task card
 function createTaskCard(task) {
   const taskCard = $("<div>")
@@ -71,46 +111,6 @@ function createTaskCard(task) {
 
   // Return the card so it can be appended to the correct lane.
   return taskCard;
-}
-
-// Function to handle adding a new task
-function handleAddTask(event) {
-  event.preventDefault();
-
-  console.log("handle add task function called");
-
-  // Read user input from the form
-  const taskTitle = taskTitleInputEl.val().trim();
-  const taskDueDate = taskDueDateInputEl.val(); // yyyy-mm-dd format
-  const taskDesc = taskDescInputEl.val(); // don't need to trim select input
-
-  if (!taskTitle || !taskDueDate) {
-    console.error("All fields must be filled out");
-    return; // Prevent adding task if title or date fields are empty
-  }
-
-  const newTask = {
-    name: taskTitle,
-    dueDate: taskDueDate,
-    desc: taskDesc,
-    status: "to-do",
-    id: generateTaskId(),
-  };
-
-  // Retrieve task list from localStorage (or initialize it as an empty array)
-  let taskList = JSON.parse(localStorage.getItem("tasks")) || [];
-
-  // Add the new task to the list
-  taskList.push(newTask);
-
-  // Save the updated task list back to localStorage using saveTasksToStorage
-  saveTasksToStorage(taskList); // Use the helper function
-
-  // Re-render the task list to update the UI
-  renderTaskList();
-
-  // Close the modal after submission
-  $("#formModal").modal('hide');
 }
 
 // Function to handle deleting a task
@@ -172,11 +172,11 @@ function renderTaskList() {
     const taskCard = createTaskCard(task); // Create task card
 
     if (task.status === "to-do") {
-      todoList.appendChild(taskCard);
+      todoList.appendChild(taskCard[0]);
     } else if (task.status === "in-progress") {
-      inProgressList.appendChild(taskCard);
+      inProgressList.appendChild(taskCard[0]);
     } else if (task.status === "done") {
-      doneList.appendChild(taskCard);
+      doneList.appendChild(taskCard[0]);
     }
   });
 }
