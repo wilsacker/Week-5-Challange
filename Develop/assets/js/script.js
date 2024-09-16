@@ -16,6 +16,12 @@ function generateTaskId() {
   return taskId; // Return the unique taskId
 }
 
+// Function to reset the Modal
+function resetModal() {
+  // Reset the form (assuming the form has an id of 'add-task-form')
+  document.getElementById("add-task-form").reset();
+}
+
 // Accepts an array of projects, stringify's them, and saves them in localStorage.
 function saveTasksToStorage(taskList) {
   localStorage.setItem("tasks", JSON.stringify(taskList)); // Save taskList
@@ -60,6 +66,7 @@ function handleAddTask(event) {
 
   // Close the modal after submission
   $("#formModal").modal("hide");
+  resetModal(); // Reset the modal fields
 }
 
 // Function to create a task card
@@ -152,7 +159,7 @@ function handleDeleteTask(event) {
   // Remove project from the array. There is a method called `filter()` for this that is better suited which we will go over in a later activity. For now, we will use a `forEach()` loop to remove the project.
   taskList.forEach((task) => {
     if (task.id === taskId) {
-      task.splice(tasks.indexOf(task), 1);
+      task.splice(taskList.indexOf(task), 1);
     }
   });
 
@@ -170,18 +177,31 @@ function handleDrop(event, ui) {
 
   // Get the project id from the event
   const taskId = ui.draggable[0].dataset.taskId;
-
   console.log("Dropped task ID:", taskId);
 
   // Get the id of the lane that the card was dropped into
   const newStatus = event.target.id;
+  console.log("New status (lane ID):", newStatus);
 
-  for (let task of taskList) {
-    // Find the project card by the `id` and update the project status.
-    if (task.id === taskId) {
-      task.status = newStatus;
-      break;
+  let taskUpdated = false; // Track if the task was successfully updated
+
+  // Loop through tasks and update the status of the task with the matching id
+  taskList.forEach((task) => {
+    if (task.id == taskId) {
+      // Use `==` to handle string/number mismatch
+      task.status = newStatus; // Update the task status
+      taskUpdated = true;
     }
+  });
+
+  if (taskUpdated) {
+    // Save the updated tasks array to localStorage
+    localStorage.setItem("tasks", JSON.stringify(taskList));
+
+    // Re-render the task list
+    renderTaskList();
+  } else {
+    console.error("Task ID not found in the task list");
   }
 
   // Save the updated tasks array to localStorage (overwriting the previous one) and render the new taskList data to the screen.
@@ -197,6 +217,13 @@ function makeDraggable() {
     helper: "clone", // Creates a visual clone when dragging
     zIndex: 100, // Ensures the dragged item is above other elements
     opacity: 0.7, // Transparency while dragging
+    start: function (event, ui) {
+      // Retrieve the task id of the card being dragged
+      const taskId = $(this).attr("data-task-id");
+      console.log("Dragging task with ID:", taskId);
+      // You can store the taskId in localStorage if needed for later
+      localStorage.setItem("currentDraggedTaskId", taskId);
+    },
     helper: function (e) {
       // Check if the target of the drag event is the card itself or a child element.
       // If it is the card itself, clone it, otherwise find the parent card that is draggable and clone that.
@@ -225,5 +252,6 @@ $(document).ready(function () {
   $(".lane").droppable({
     accept: ".draggable",
     drop: handleDrop,
+    hoverClass: "lane-hover",
   });
 });
