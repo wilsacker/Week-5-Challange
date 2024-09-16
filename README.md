@@ -19,4 +19,4 @@ Please click on deployed link below and you will be prompted to the main page of
 ![alt text](./Develop/images/Seventh.png)
 ![alt text](./Develop/images/Eighth.png)
 
-Github Repository : https://github.com/wilsacker/Week-5-Challange Deployed Link : https://wilsacker.github.io/Week-5-Challange/git 
+Github Repository : https://github.com/wilsacker/Week-5-Challange Deployed Link : https://wilsacker.github.io/Week-5-Challange/
