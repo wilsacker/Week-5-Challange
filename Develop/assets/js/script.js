@@ -151,25 +151,6 @@ function renderTaskList() {
   makeDraggable();
 }
 
-// Function to handle deleting a task
-function handleDeleteTask(event) {
-  const taskId = $(this).attr("data-task-id");
-  const taskList = JSON.parse(localStorage.getItem("tasks")) || [];
-
-  // Remove project from the array. There is a method called `filter()` for this that is better suited which we will go over in a later activity. For now, we will use a `forEach()` loop to remove the project.
-  taskList.forEach((task) => {
-    if (task.id === taskId) {
-      task.splice(taskList.indexOf(task), 1);
-    }
-  });
-
-  // We will use our helper function to save the tasks to localStorage
-  saveTasksToStorage(tasks);
-
-  // Here we use our other function to render tasks back to the screen
-  renderTaskList();
-}
-
 // Function to handle dropping a task into a new status lane
 function handleDrop(event, ui) {
   // Read tasks from localStorage
@@ -208,6 +189,21 @@ function handleDrop(event, ui) {
   localStorage.setItem("tasks", JSON.stringify(taskList));
 
   renderTaskList();
+}
+
+// Function to handle deleting a task
+function handleDeleteTask(event) {
+    const taskId = $(this).attr("data-task-id"); // Retrieve the task ID from the clicked element
+    let taskList = JSON.parse(localStorage.getItem("tasks")) || []; // Get tasks from localStorage
+  
+    // Use filter() to remove the task with the matching ID
+    taskList = taskList.filter((task) => task.id != taskId); // Use != to handle any type mismatch
+  
+    // Save the updated task list to localStorage
+    saveTasksToStorage(taskList); // Save the updated list
+  
+    // Re-render the task list
+    renderTaskList();
 }
 
 // Make task cards draggable
